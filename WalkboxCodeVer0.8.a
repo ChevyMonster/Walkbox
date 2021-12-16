@@ -1,0 +1,1331 @@
+/* WalkBox Foot Controller Patented 2019.01.21 */
+/* Version 0.8.a */
+/* LIST OF ALL POSSIBLE COMBOS FOR REFERENCE
+  // <<<<<<<<<<<<<<<< RIGHT FOOT ONLY 1 PADDLE
+
+  1, 2, 3, 4,         // RIGHT OUT, DOWN, IN, UP
+  // <<<<<<<<<<<<<<<< LEFT FOOT ONLY 1 PADDLE
+  5, 6, 7, 8,         // LEFT IN, DOWN, OUT, UP
+  // <<<<<<<<<<<<<<<< LEFT FOOT 1 PADDLE + RIGHT FOOT 1 PADDLE
+  9, 10, 11, 12,      // LEFT IN + RIGHT IN, DOWN, OUT, UP
+  13, 14, 15, 16,     // LEFT DOWN + RIGHT IN, DOWN, OUT, UP
+  17, 18, 19, 20,     // LEFT OUT + RIGHT IN, DOWN, OUT, UP
+  21, 22, 23, 24,     // LEFT UP + RIGHT IN, DOWN, OUT, UP
+  // <<<<<<<<<<<<<<<< RIGHT FOOT ONLY 2 PADDLES
+  25,                 // OUT/DOWN
+  26,                 // DOWN/IN
+  27,                 // IN/UP
+  28,                 // UP/OUT
+  // <<<<<<<<<<<<<<<< LEFT FOOT ONLY 2 PADDLES
+  29,                 // IN/DOWN
+  30,                 // DOWN/OUT
+  31,                 // OUT/UP
+  32,                 // UP/IN
+  // <<<<<<<<<<<<<<<< RIGHT FOOT 2 PADDLES + LEFT FOOT 1 PADDLE
+  33, 34, 35, 36,     // OUT/DOWN  + IN, DOWN, OUT, UP
+  37, 38, 39, 40,     // DOWN/IN   + IN, DOWN, OUT, UP
+  41, 42, 43, 44,     // IN/UP     + IN, DOWN, OUT, UP
+  45, 46, 47, 48,     // UP/OUT    + IN, DOWN, OUT, UP
+  // <<<<<<<<<<<<<<<< LEFT FOOT 2 PADDLES + RIGHT FOOT 1 PADDLE
+  49, 50, 51, 52,     // IN/DOWN   + IN, DOWN, OUT, UP
+  53, 54, 55, 56,     // DOWN/OUT  + IN, DOWN, OUT, UP
+  57, 58, 59, 60,     // OUT/UP    + IN, DOWN, OUT, UP
+  61, 62, 63, 64,     // UP/IN     + IN, DOWN, OUT, UP
+  // <<<<<<<<<<<<<<<< BOTH FEET 2 PADDLES
+  65, 66, 67, 68,     // OUT/DOWN  + OUT/DOWN, IN/DOWN, IN/UP, OUT/UP
+  69, 70, 71, 72,     // DOWN/IN   + OUT/DOWN, IN/DOWN, IN/UP, OUT/UP
+  73, 74, 75, 76,     // IN/UP     + OUT/DOWN, IN/DOWN, IN/UP, OUT/UP
+  77, 78, 79, 80      // UP/OUT    + OUT/DOWN, IN/DOWN, IN/UP, OUT/UP
+*/
+// INCLUDES
+#include <EEPROM.h>
+// END OF INCLUDES
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// CONFIGURATION BEFORE SETUP
+const int TotalPins = 16; // pins 0 - 15
+byte InputPins[TotalPins]; // Input pin array using 0 or 1
+bool Right_Out = false; bool Right_Down = false; bool Right_Up = false; bool Right_In = false;
+bool Left_In = false; bool Left_Down = false; bool Left_Out = false; bool Left_Up    = false;
+bool LeftPressed  = false; bool RightPressed = false; bool BothPressed = false;
+int LeftTotal = 0; int RightTotal = 0;
+int InputDelay = 150; int TempInputDelay = 150; int MinInputDelay = 50; int MaxInputDelay = 500;
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// ALPHA
+char AAA = KEY_A; char BBB = KEY_B; char CCC = KEY_C; char DDD = KEY_D; char EEE = KEY_E;
+char FFF = KEY_F; char GGG = KEY_G; char HHH = KEY_H; char III = KEY_I; char JJJ = KEY_J;
+char KKK = KEY_K; char LLL = KEY_L; char MMM = KEY_M; char NNN = KEY_N; char OOO = KEY_O;
+char PPP = KEY_P; char QQQ = KEY_Q; char RRR = KEY_R; char SSS = KEY_S; char TTT = KEY_T;
+char UUU = KEY_U; char VVV = KEY_V; char WWW = KEY_W; char XXX = KEY_X; char YYY = KEY_Y; char ZZZ = KEY_Z;
+// NUMERIC
+char ONE = KEY_1; char TWO = KEY_2; char THREE = KEY_3; char FOUR = KEY_4; char FIVE = KEY_5;
+char SIX = KEY_6; char SEVEN = KEY_7; char EIGHT = KEY_8; char NINE = KEY_9;
+char ZERO = KEY_0;
+// PUNCTUATION
+char PERIOD = KEY_PERIOD; char COMMA = KEY_COMMA; char TILDE = KEY_TILDE; char SEMICOLON = KEY_SEMICOLON;
+char QUOTE = KEY_QUOTE; char SLASH = KEY_SLASH; char BACKSLASH = KEY_BACKSLASH;
+// OTHER CHARACTERS
+char ENTER = KEY_ENTER; char ESCAPE = KEY_ESC; char BACK_SPACE = KEY_BACKSPACE; char TAB = KEY_TAB;
+char SPACE = KEY_SPACE; char MINUS = KEY_MINUS; char EQUAL = KEY_EQUAL; char LEFT_BRACE = KEY_LEFT_BRACE;
+char RIGHT_BRACE = KEY_RIGHT_BRACE;
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// MODIFIER KEY
+char CAPS_LOCK = KEY_CAPS_LOCK;
+char LEFT_SHIFT = MODIFIERKEY_LEFT_SHIFT; char RIGHT_SHIFT = MODIFIERKEY_RIGHT_SHIFT;
+char LEFT_CTRL = MODIFIERKEY_LEFT_CTRL; char RIGHT_CTRL = MODIFIERKEY_RIGHT_CTRL;
+char LEFT_ALT = MODIFIERKEY_LEFT_ALT; char RIGHT_ALT = MODIFIERKEY_RIGHT_ALT;
+char LEFT_GUI = MODIFIERKEY_LEFT_GUI; char RIGHT_GUI = MODIFIERKEY_RIGHT_GUI;
+// NUMBER PAD
+char NUMPAD_LOCK = KEY_NUM_LOCK; char NUMPAD_SLASH = KEYPAD_SLASH; char NUMPAD_ASTERIX = KEYPAD_ASTERIX;
+char NUMPAD_MINUS = KEYPAD_MINUS; char NUMPAD_PLUS = KEYPAD_PLUS; char NUMPAD_ENTER = KEYPAD_ENTER;
+char NUMPAD_PERIOD = KEYPAD_PERIOD;
+char NUMPAD_1 = KEYPAD_1; char NUMPAD_2 = KEYPAD_2; char NUMPAD_3 = KEYPAD_3;
+char NUMPAD_4 = KEYPAD_4; char NUMPAD_5 = KEYPAD_5; char NUMPAD_6 = KEYPAD_6;
+char NUMPAD_7 = KEYPAD_7; char NUMPAD_8 = KEYPAD_8; char NUMPAD_9 = KEYPAD_9;
+char NUMPAD_0 = KEYPAD_0;
+// FUNCTION KEYS
+char F1 = KEY_F1; char F2 = KEY_F2; char F3 = KEY_F3; char F4 = KEY_F4; char F5 = KEY_F5; char F6 = KEY_F6;
+char F7 = KEY_F7; char F8 = KEY_F8; char F9 = KEY_F9; char F10 = KEY_F10; char F11 = KEY_F11; char F12 = KEY_F12;
+// SPECIAL KEYS
+char PRINT_SCREEN = KEY_PRINTSCREEN; char SCROLL_LOCK = KEY_SCROLL_LOCK; char PAUSE = KEY_PAUSE; char INSERT = KEY_INSERT;
+char HOME = KEY_HOME; char PAGE_UP = KEY_PAGE_UP; char PAGE_DOWN = KEY_PAGE_DOWN; char DELETE = KEY_DELETE;
+char RIGHTARROW = KEY_RIGHT; char LEFTARROW = KEY_LEFT; char UPARROW = KEY_UP; char DOWNARROW = KEY_DOWN;
+// SHIFT + KEY
+char EXCLAMATION = 1;           // 1
+char AMPERSAND = 2;             // 2
+char HASHTAG = 3;               // 3
+char DOLLARSIGN = 4;            // 4
+char PERCENTSIGN = 5;           // 5
+char CARETSIGN = 6;             // 6
+char ANDSIGN = 7;               // 7
+char ASTERIX = 8;               // 8
+char PARENTH_LEFT = 9;          // 9
+char PARENTH_RIGHT = 0;         // 0
+char UNDERSCORE = MINUS;        // MINUS
+char CURLYBRACKET_LEFT = LEFT_BRACE;    // LEFT_BRACE
+char CURLYBRACKET_RIGHT = RIGHT_BRACE;  // RIGHT_BRACE
+char PLUSSIGN = EQUAL;          // EQUAL
+char COLON = SEMICOLON;         // SEMICOLON
+char DOUBLE_QUOTE = QUOTE;      // QUOTE
+char VERTICAL_BAR = BACKSLASH;  // BACKSLASH
+char LESS_THAN = COMMA;         // COMMA
+char GREATER_THAN = PERIOD;     // PERIOD
+
+// ALT + ASSIGNED VALUE
+int BACK_TICK = 96;             // 96
+char TICK = 39;                  // 39
+
+// ALT + [0 + ASSIGNED VALUE]
+int FORWARD_TICK = 180; // 180
+int COPYRIGHT = 169; // 169
+int TRADEMARK = 153; // 153
+int REGISTERED = 174; // 174
+int LISTDOT = 149; // 149
+int SECTIONSYMBOL = 167; // 167
+int DAGGER = 134; // 1
+int DOUBLEDAGGER = 135; // 135
+int ENDASH = 150; // 150
+int EMDASH = 151; // 151
+int PARAGRAPH = 182; // 182
+int ONEQUARTER = 188; // 188
+int ONEHALF = 189; // 189
+int THREEQUARTER = 190; // 190
+int DIVISION = 247; // 247
+int DEGREE = 176; // 176
+int NOTSYMBOL = 172; // 172
+int PLUSMINUS = 177; // 177
+int MICRO = 181; // 181
+int PERMILLE = 137; // 137
+int CENTSIGN = 162; // 162
+int BRITISHPOUND = 163; // 163
+int EURO = 128; // 128
+int YEN = 165; // 165
+int FLORIN = 131; // 131
+int GENERICCURRENCY = 164; // 164
+int UPSIDEEXLAMATION = 161; // 161
+int UPSIDEQUESTION = 191; // 191
+// ACCENTED CHARACTERS
+int GRAVE_A_CAP = 192; // À
+int GRAVE_E_CAP = 200; // È
+int GRAVE_I_CAP = 204; // Ì
+int GRAVE_O_CAP = 210; // Ò
+int GRAVE_U_CAP = 217; // Ù
+int GRAVE_A_LOW = 224; // à
+int GRAVE_E_LOW = 232; // è
+int GRAVE_I_LOW = 236; // ì
+int GRAVE_O_LOW = 242; // ò
+int GRAVE_U_LOW = 249; // ù
+int ACUTE_A_CAP = 193; // Á
+int ACUTE_E_CAP = 201; // É
+int ACUTE_I_CAP = 205; // Í
+int ACUTE_O_CAP = 211; // Ó
+int ACUTE_U_CAP = 218; // Ú
+int ACUTE_Y_CAP = 221; // Ý
+int ACUTE_A_LOW = 225; // á
+int ACUTE_E_LOW = 233; // é
+int ACUTE_I_LOW = 237; // í
+int ACUTE_O_LOW = 243; // ó
+int ACUTE_U_LOW = 250; // ú
+int ACUTE_Y_LOW = 253; // ý
+int CIRCUMFLEX_A_CAP = 194; // Â
+int CIRCUMFLEX_E_CAP = 202; // Ê
+int CIRCUMFLEX_I_CAP = 206; // Î
+int CIRCUMFLEX_O_CAP = 212; // Ô
+int CIRCUMFLEX_U_CAP = 219; // Û
+int CIRCUMFLEX_A_LOW = 226; // â
+int CIRCUMFLEX_E_LOW = 234; // ê
+int CIRCUMFLEX_I_LOW = 238; // î
+int CIRCUMFLEX_O_LOW = 244; // ô
+int CIRCUMFLEX_U_LOW = 251; // û
+int TILDE_A_CAP = 195; // Ã
+int TILDE_N_CAP = 209; // Ñ
+int TILDE_O_CAP = 213; // Õ
+int TILDE_A_LOW = 227; // ã
+int TILDE_N_LOW = 241; // ñ
+int TILDE_O_LOW = 245; // õ
+int UMLAUT_A_CAP = 196; // Ä
+int UMLAUT_E_CAP = 196; // Ë
+int UMLAUT_I_CAP = 196; // Ï
+int UMLAUT_O_CAP = 196; // Ö
+int UMLAUT_U_CAP = 196; // Ü
+int UMLAUT_Y_CAP = 196; // Ÿ
+int UMLAUT_A_LOW = 196; // ä
+int UMLAUT_E_LOW = 196; // ë
+int UMLAUT_I_LOW = 196; // ï
+int UMLAUT_O_LOW = 196; // ö
+int UMLAUT_U_LOW = 196; // ü
+int UMLAUT_Y_LOW = 196; // ÿ
+int LIGATURE_OE_CAP = 140; // Œ
+int LIGATURE_OE_LOW = 156; // œ
+int LIGATURE_AE_CAP = 198; // Æ
+int LIGATURE_AE_LOW = 230; // æ
+int ORDINAL_MALE = 186;    // º
+int ORDINAL_FEMALE = 170;  // ª
+int FRENCH_C_CAP = 199; // Ç
+int FRENCH_C_LOW = 231; // ç
+int SPANISH_FRENCH_ANGLE_QUOTE_DOUBLE_LEFT = 171;  // «
+int SPANISH_FRENCH_ANGLE_QUOTE_DOUBLE_RIGHT = 187; // »
+int SPANISH_FRENCH_ANGLE_QUOTE_SINGLE_LEFT = 139;  // ‹
+int SPANISH_FRENCH_ANGLE_QUOTE_SINGLE_RIGHT = 155; // ›
+int CZECH_S_HACHEK_S_CARON_CAP = 138; // Š
+int CZECH_S_HACHEK_S_CARON_LOW = 138; // š
+int CZECH_Z_HACHEK_Z_CARON_CAP = 142; // Ž
+int CZECH_Z_HACHEK_Z_CARON_LOW = 158; // ž
+int GERMAN_SHARP_SS = 223; // ß
+int NORDIC_O_SLASH_CAP = 216; // Ø
+int NORDIC_O_SLASH_LOW = 248; // ø
+int NORDIC_A_CAP = 197; // Å
+int NORDIC_A_LOW = 229; // å
+int ICELAND_OLDENGLISH_THORN_CAP = 222; // Þ
+int ICELAND_OLDENGLISH_THORN_LOW = 254; // þ
+int ICELAND_OLDENGLISH_ETH_CAP = 208; // Ð
+char ICELAND_OLDENGLISH_ETH_LOW = 240; // ð // <<<---<<<---<<<---<<<---<<<---<<<---<<<---<<<---<<<---<<<--- TEST VERSION DATA
+// END OF VARIABLE NAME LIST
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// Array of possible output key names
+char Output_Key_Name[] = { // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+  0, // NULL VALUE FOR NO KEY OUTPUT
+  AAA, BBB, CCC, DDD, EEE, FFF, GGG, HHH, III, JJJ, KKK, LLL, MMM,    // ALPHA 1 - 13
+  NNN, OOO, PPP, QQQ, RRR, SSS, TTT, UUU, VVV, WWW, XXX, YYY, ZZZ,    // ALPHA 14 - 26
+  ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, ZERO,         // NUMERIC 27 - 36
+  PERIOD, COMMA, TILDE, SEMICOLON, QUOTE, SLASH, BACKSLASH,           // PUNCTUATION 37 - 43
+  ENTER, ESCAPE, BACK_SPACE, TAB, SPACE, MINUS,                       // OTHER KEYS 44 - 49
+  EQUAL, LEFT_BRACE, RIGHT_BRACE, CAPS_LOCK,                          // OTHER KEYS 50 - 53
+  NUMPAD_LOCK, NUMPAD_SLASH, NUMPAD_ASTERIX, NUMPAD_MINUS,            // NUMBER PAD 53 - 56
+  NUMPAD_PLUS, NUMPAD_ENTER, NUMPAD_PERIOD,                           // NUMBER PAD 57 - 59
+  NUMPAD_1, NUMPAD_2, NUMPAD_3, NUMPAD_4, NUMPAD_5,                   // NUMBER PAD 60 - 64
+  NUMPAD_6, NUMPAD_7, NUMPAD_8, NUMPAD_9, NUMPAD_0,                   // NUMBER PAD 65 - 69
+  F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,                  // FUNCTION KEYS 70 - 81
+  PRINT_SCREEN, SCROLL_LOCK, PAUSE, INSERT, HOME, PAGE_UP,            // SPECIAL KEYS 82 - 87
+  PAGE_DOWN, DELETE, RIGHTARROW, LEFTARROW, UPARROW, DOWNARROW,       // SPECIAL KEYS 88 - 93
+  // SHIFT + ASSIGNED KEY
+  EXCLAMATION, AMPERSAND, HASHTAG, DOLLARSIGN, PERCENTSIGN, CARETSIGN,// 94 - 99
+  ANDSIGN, ASTERIX, PARENTH_LEFT, PARENTH_RIGHT, UNDERSCORE,          // 100 - 104
+  CURLYBRACKET_LEFT, CURLYBRACKET_RIGHT, PLUSSIGN,                    // 105 - 107
+  COLON, DOUBLE_QUOTE, VERTICAL_BAR, LESS_THAN, GREATER_THAN,         // 108 - 112
+  // LEFT ALT + ASSIGNED VALUE
+  BACK_TICK, TICK,                                                    // 113 - 114
+  // LEFT ALT + 0 + ASSIGNED VALUE
+  FORWARD_TICK, COPYRIGHT, TRADEMARK, REGISTERED, LISTDOT,            // 115 - 119
+  SECTIONSYMBOL, DAGGER, DOUBLEDAGGER, ENDASH, EMDASH,                // 120 - 124
+  PARAGRAPH, ONEQUARTER, ONEHALF, THREEQUARTER, DIVISION,             // 125 - 129
+  DEGREE, NOTSYMBOL, PLUSMINUS, MICRO, PERMILLE, CENTSIGN,            // 130 - 135
+  BRITISHPOUND, EURO, YEN, FLORIN, GENERICCURRENCY,                   // 136 - 140
+  UPSIDEEXLAMATION, UPSIDEQUESTION,                                   // 141 - 142
+  // ACCENTED CHARACTERS
+  GRAVE_A_CAP, GRAVE_E_CAP, GRAVE_I_CAP, GRAVE_O_CAP, GRAVE_U_CAP,    // 143 - 147
+  GRAVE_A_LOW, GRAVE_E_LOW, GRAVE_I_LOW, GRAVE_O_LOW, GRAVE_U_LOW,    // 148 - 152
+  ACUTE_A_CAP, ACUTE_E_CAP, ACUTE_I_CAP, ACUTE_O_CAP, ACUTE_U_CAP,    // 153 - 157
+  ACUTE_Y_CAP, ACUTE_A_LOW, ACUTE_E_LOW, ACUTE_I_LOW, ACUTE_O_LOW,    // 158 - 162
+  ACUTE_U_LOW, ACUTE_Y_LOW,                                           // 163 - 164
+  CIRCUMFLEX_A_CAP, CIRCUMFLEX_E_CAP, CIRCUMFLEX_I_CAP, CIRCUMFLEX_O_CAP, CIRCUMFLEX_U_CAP, // 165 - 169
+  CIRCUMFLEX_A_LOW, CIRCUMFLEX_E_LOW, CIRCUMFLEX_I_LOW, CIRCUMFLEX_O_LOW, CIRCUMFLEX_U_LOW, // 170 - 174
+  TILDE_A_CAP, TILDE_N_CAP, TILDE_O_CAP, TILDE_A_LOW, TILDE_N_LOW, TILDE_O_LOW,             // 175 - 180
+  UMLAUT_A_CAP, UMLAUT_E_CAP, UMLAUT_I_CAP, UMLAUT_O_CAP, UMLAUT_U_CAP, UMLAUT_Y_CAP,       // 181 - 186
+  UMLAUT_A_LOW, UMLAUT_E_LOW, UMLAUT_I_LOW, UMLAUT_O_LOW, UMLAUT_U_LOW, UMLAUT_Y_LOW,       // 187 - 192
+  LIGATURE_OE_CAP, LIGATURE_OE_LOW, LIGATURE_AE_CAP, LIGATURE_AE_LOW,                       // 193 - 196
+  ORDINAL_MALE, ORDINAL_FEMALE, FRENCH_C_CAP, FRENCH_C_LOW,                                 // 197 - 200
+  SPANISH_FRENCH_ANGLE_QUOTE_DOUBLE_LEFT, SPANISH_FRENCH_ANGLE_QUOTE_DOUBLE_RIGHT,          // 201 - 202
+  SPANISH_FRENCH_ANGLE_QUOTE_SINGLE_LEFT, SPANISH_FRENCH_ANGLE_QUOTE_SINGLE_RIGHT,          // 203 - 204
+  CZECH_S_HACHEK_S_CARON_CAP, CZECH_S_HACHEK_S_CARON_LOW,                                   // 205 - 206
+  CZECH_Z_HACHEK_Z_CARON_CAP, CZECH_Z_HACHEK_Z_CARON_LOW,                                   // 207 - 208
+  GERMAN_SHARP_SS, NORDIC_O_SLASH_CAP, NORDIC_O_SLASH_LOW, NORDIC_A_CAP, NORDIC_A_LOW,      // 209 - 213
+  ICELAND_OLDENGLISH_THORN_CAP, ICELAND_OLDENGLISH_THORN_LOW,                               // 214 - 215
+  ICELAND_OLDENGLISH_ETH_CAP, ICELAND_OLDENGLISH_ETH_LOW                                    // 216 - 217
+  //NO END COMMA ON LAST LINE OF NAMES <<<<<<<<<<<<<<<<<<
+}; // <<< DO NOT REMOVE
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// array of possible modifier keys
+char Mod_Key_Name[] = {
+  0, // NULL VALUE FOR NO KEY OUTPUT
+  LEFT_SHIFT, RIGHT_SHIFT, LEFT_CTRL, RIGHT_CTRL,                  // MODIFIERS 1 - 4 <<<<
+  LEFT_ALT, RIGHT_ALT, LEFT_GUI, RIGHT_GUI,                        // MODIFIERS 6 - 8 <<<<
+}; // << DO NOT REMOVE
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// CONFIGURATION VARIABLES
+int UserKeyList[] = { // User entry format "nnn,nnn"
+  // First entry 0 - 255 for key, second entry 0 - 8 for mod key
+  0, // null value to simplify starting position
+  115, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Entries 1 - 10 <<< test data = ©
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Entries 11 - 20
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Entries 21 - 30
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Entries 31 - 40
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Entries 41 - 50
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Entries 51 - 60
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Entries 61 - 70
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0  // Entries 71 - 80
+}; // << DO NOT REMOVE
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+bool DebugMode = true; bool EditingIs = false; bool ConfigIs = false; bool WaitForData = false;
+String CodeBlock = "START"; String Command = "COMBO"; String LastCommand = "BLANK"; String EditCommand = "BLANK";
+String ConfigCommand = "BLANK"; String UpdateCommand = "BLANK"; String TempData = "BLANK"; String WhichMode = "COMBO";
+String LastMode = "COMBO"; String ConfigMode = "BLANK"; String DataA = ""; String DataB = ""; String Config = "";
+String Special_Char = "000000"; int LoopCount = 0;
+int Data_A = 1; int Data_B = 1; int UserConfig = 1;
+int ComboArraySize = 160; // first entry is 0, user entries from 1 - 80
+int SplitArraySize = 48; // first entry is 0, user entries from 1 - 24
+int ArrayCount = 0; int DebugDelay = 250; int NewData = 0; int NewAddress = 0; int ReadAddress = 0;
+int AddressToWrite = 0; int DataToWriteFirst = 0; int DataToWriteSecond = 0; int AddressToRead = 0; int ConfigAddress = 0;
+int EEpromAddress = 0; int SelectedUserOutput = 0; int PaddleCombo = 100000000;
+// END OF CONFIGURATION
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// SETUP
+void setup() {
+  Serial.begin(9600);   Keyboard.begin();
+  for (int i = 0; i < TotalPins; i++) {// Set all input pins to HIGH = OFF
+    pinMode(i, INPUT_PULLUP);
+  }
+  keyboard_keys[0] = 0; keyboard_keys[0] = 0; keyboard_keys[0] = 0; keyboard_keys[0] = 0; keyboard_keys[0] = 0; keyboard_keys[0] = 0;
+  keyboard_modifier_keys = 0;// KEY_LEFT_SHIFT, KEY_RIGHT_SHIFT, etc
+  usb_keyboard_send();
+
+  //
+  // READ DEFAULT USER MODE AND DEFAULT KEY LIST NUMBER FROM STORAGE
+  //
+
+  //
+  // READ DEFAULT USER KEY LIST FROM STORAGE INTO ARRAY UserKeyList[]
+  //
+
+}// END OF SETUP
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// MAIN PROGRAM LOOP
+void loop() {
+  CodeBlock = "Main Loop"; Check_Debug();
+  Send_Ready_Signal();
+  Read_Commands();
+  Execute_Commands();
+} // END OF MAIN LOOP
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Execute_Commands() {
+  CodeBlock = "Execute_Commands()";  Check_Debug();
+  LastCommand = Command;
+  if (Command == "EDIT") {
+    Edit_Mode();
+  }
+  if (Command == "COMBO") {
+    WhichMode = "COMBO";
+    Walkbox_Mode();
+  }
+  if (Command == "SPLIT") {
+    WhichMode = "SPLIT";
+    Walkbox_Mode();
+  }
+  if (Command == "CONFIG") {
+    Config_Mode();
+  }
+  if (Command == "UPDATE") {
+    Update_Mode();
+  }
+  if (Command == "DEBUGON") {
+    Debug_On(); Command = LastCommand;
+  }
+  if (Command == "DEBUGOFF") {
+    Debug_Off(); Command = LastCommand;
+  }
+} // END OF void Execute_Commands()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Config_Mode() {
+ConfigIs = true; TopOfConfigMode:; // <<<<<<<<<<<<<<<< TOP OF Config_Mode() LOOP
+  CodeBlock = "Config_Mode()";  Check_Debug();
+  while (ConfigIs == true) { // Config loop until "EXIT" command
+    CodeBlock = "Waiting For Config Comand"; Check_Debug();
+    Read_Config_Command();
+    Execute_Config_Commands();
+  } // END OF while (ConfigIs == true)
+  if (ConfigCommand != "EXIT") { // If ConfigCommand is NOT "EXIT", continue WaitForData loop
+    goto TopOfConfigMode;
+  } // Do Stuff Before Leaving Config Mode
+  Command = WhichMode;
+} // END OF Config_Mode()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Read_Config_Command() {
+  CodeBlock = "Read_Config_Commands()"; Check_Debug(); Receive_Data(); ConfigCommand = TempData;
+  if (DebugMode == true) {
+    Serial.println("New Config Command is : " + ConfigCommand);
+  }
+} // END OF Read_Config_Command()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Execute_Config_Commands() {
+  CodeBlock = "Execute_Config_Commands()";  Check_Debug();
+  if (ConfigCommand == "CHANGECOMBO") { // User Combo
+    Change_Combo_Config();
+  }
+  if (ConfigCommand == "CHANGESPLIT") { // User Split
+    Change_Split_Config();
+  }
+  if (ConfigCommand == "EXIT") {
+    ConfigIs = false;
+  }
+} // END OF Execute_Config_Commands()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Change_Combo_Config() {
+  CodeBlock = "Change_Combo_Config()";  Check_Debug(); WhichMode = "COMBO";
+  if (DebugMode == true) {
+    Serial.println("Enter Combo Config Number");
+  }
+  Receive_Data();
+  if (DebugMode == true) {
+    Serial.println("Entered Number: " + TempData.toInt());
+  }
+  UserConfig = TempData.toInt();
+  if (DebugMode == true) {
+    Serial.println("Combo Config selected is : " + UserConfig);
+  }
+  Load_Config();
+  if (DebugMode == true) {
+    Serial.println("Finished Loading Combo Config");
+  }
+} // END OF Change_Combo_Config()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Change_Split_Config() {
+  CodeBlock = "Change_Split_Config()"; Check_Debug(); WhichMode = "SPLIT";
+  if (DebugMode == true) {
+    Serial.println("Enter Split Config Number");
+  }
+  Receive_Data();
+  if (DebugMode == true) {
+    Serial.println("Entered Number: " + TempData.toInt());
+  }
+  UserConfig = TempData.toInt();
+  if (DebugMode == true) {
+    Serial.println("Split Config selected is : " + UserConfig);
+  }
+  Load_Config();
+  if (DebugMode == true) {
+    Serial.println("Finished Loading Split Config");
+  }
+} // END OF Change_Split_Config()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Load_Config() {
+  CodeBlock = "Load_Config()";  Check_Debug();
+  if (DebugMode == true) {
+    Serial.println("\n>> Config Mode: " + ConfigMode);
+  }
+  if (WhichMode == "COMBO") {
+    if (DebugMode == true) {
+      Serial.println("\n>> Selected Combo Config: " + String(UserConfig));
+    }// ConfigAddress = the offset depending on which UserConfig is used
+    switch (UserConfig) {// Combo User 1 = 100, 2 = 400, 3 = 700, 4 = 1100, 5 = 1300
+      case 1: ConfigAddress = 100; break; case 2: ConfigAddress = 400; break; case 3: ConfigAddress = 700; break;
+      case 4: ConfigAddress = 1000; break; case 5: ConfigAddress = 1300; break;
+    }
+    if (DebugMode == true) {
+      Serial.println("\n>> Combo Address Start: " + String(ConfigAddress));
+    }// Read Selected User Config Into UserKeyList[]
+    for (ArrayCount = 0; ArrayCount <= ComboArraySize; ArrayCount++) {
+      AddressToRead = (ConfigAddress + ArrayCount); UserKeyList[ArrayCount] = EEPROM.read(AddressToRead);
+      if (DebugMode == true) {
+        Serial.println("\nCurrent Address: " + String(AddressToRead) + " Value: " + UserKeyList[ArrayCount]);
+      }
+    }
+  }
+  if (WhichMode == "SPLIT") {
+    if (DebugMode == true) {
+      Serial.println("\n>> Selected Split Config: " + String(UserConfig));
+    }// ConfigAddress = the offset depending on which UserConfig is used
+    switch (UserConfig) { // Split User 1 = 300, 2 = 600, 3 = 900, 4 = 1200, 5 = 1500
+      case 1: ConfigAddress = 300; break; case 2: ConfigAddress = 600; break; case 3: ConfigAddress = 900; break;
+      case 4: ConfigAddress = 1200; break; case 5: ConfigAddress = 1500; break;
+    }
+    if (DebugMode == true) {
+      Serial.println("\n>> Split Address Start: " + String(ConfigAddress));
+    }// Read Selected User Config Into UserKeyList[]
+    for (ArrayCount = 0; ArrayCount <= SplitArraySize; ArrayCount++) {
+      AddressToRead = (ConfigAddress + ArrayCount); UserKeyList[ArrayCount] = EEPROM.read(AddressToRead);
+      if (DebugMode == true) {
+        Serial.println("\nCurrent Address: " + String(AddressToRead) + " Value: " + UserKeyList[ArrayCount]);
+      }
+    }
+  }
+} // END OF Load_Config()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Update_Mode() {
+  CodeBlock = "Update_Mode()";  Check_Debug();
+  // CODE FOR UPDATING SOMETHING GOES HERE
+} // END OF Update_Mode()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Edit_Mode() {
+EditingIs = true; TopOfEditMode:; // <<<<<<<<<<<<<<<< TOP OF EDIT LOOP
+  CodeBlock = "Edit_Mode()";  Check_Debug();
+  while (EditingIs == true) { // EDIT loop until "EXIT" command
+    CodeBlock = "Waiting For Edit Comand"; Check_Debug(); Read_Edit_Command(); Execute_Edit_Commands();
+  } // END OF while (EditingIs == true)
+  if (EditCommand != "EXIT") { // If EditCommand is NOT "EXIT", continue WaitForData loop
+    goto TopOfEditMode;
+  }// Do Stuff Before Leaving Edit Mode
+  Command = WhichMode;
+} // END OF Edit_Mode()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Read_Edit_Command() {
+  CodeBlock = "Read_Edit_Commands()";  Check_Debug(); Receive_Data(); EditCommand = TempData;
+  if (DebugMode == true) {
+    Serial.println("Edit Command is : " + EditCommand);
+  }
+} // END OF Read_Edit_Command()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Execute_Edit_Commands() {
+  CodeBlock = "Execute_Edit_Commands()";  Check_Debug();
+  if (EditCommand == "WRITEDATA") {
+    Write_Data();
+  }
+  if (EditCommand == "READDATA") {
+    Read_Data(); Send_Data();
+  }
+  if (EditCommand == "CHANGEDELAY") {
+    Change_Delay();
+  }
+  if (EditCommand == "EXIT") {
+    EditingIs = false;
+  }
+} // END OF Execute_Edit_Commands()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Delay_Time() {
+  delay(InputDelay);
+}// END OF Delay_Time
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Change_Delay() {
+  CodeBlock = "Change_Delay()";  Check_Debug(); Send_Ready_Signal(); Wait_For_Response(); TempInputDelay = TempData.toInt();
+  if (TempInputDelay >= MinInputDelay && TempInputDelay <= MaxInputDelay ) {
+    InputDelay = TempInputDelay;
+  }
+} // END OF Change_Delay()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Write_Data() {
+  CodeBlock = "Write_Data()";  Check_Debug(); Send_Ready_Signal();
+  if (DebugMode == true) {// Read first data into AddressToWrite
+    Serial.println("Enter Starting Address");
+  }
+  Receive_Data(); AddressToWrite = TempData.toInt();
+  if (DebugMode == true) {
+    Serial.println("Data Address : " + String(AddressToWrite));
+  }
+  Send_Ready_Signal();// Read second data into DataToWriteFirst
+  if (DebugMode == true) {
+    Serial.println("Enter First Value");
+  }
+  Receive_Data(); DataToWriteFirst = TempData.toInt();
+  if (DebugMode == true) {
+    Serial.println(">> First Data : " + String(DataToWriteFirst));
+  }
+  Send_Ready_Signal();// Read third data into DataToWriteSecond
+  if (DebugMode == true) {
+    Serial.println("Enter Second Value");
+  }
+  Receive_Data(); DataToWriteSecond = TempData.toInt();
+  if (DebugMode == true) {
+    Serial.println(">>>> Second Data : " + String(DataToWriteSecond));
+  }
+  EEPROM.write(AddressToWrite, DataToWriteFirst); EEPROM.write(AddressToWrite + 1, DataToWriteSecond); EditCommand = "BLANK";
+} // END OF Write_Data()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Read_Data() {
+  CodeBlock = "Read_Data()";  Check_Debug(); Receive_Data(); AddressToRead = TempData.toInt();
+  if (DebugMode == true) {
+    Serial.println("Read Address : " + String(AddressToRead));
+  }
+  Data_A = EEPROM.read(AddressToRead); Data_B = EEPROM.read(AddressToRead + 1); EditCommand = "BLANK";
+} // END OF Read_Data()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Send_Data() {
+  CodeBlock = "Send_Data()"; Check_Debug(); Send_Ready_Signal(); Wait_For_Response();
+  Serial.println(String(Data_A));
+  if (DebugMode == true) {
+    Serial.println("Send First Data : " + String(Data_A));
+  }
+  Serial.println(String(Data_B));
+  Send_Ready_Signal(); Wait_For_Response();
+  if (DebugMode == true) {
+    Serial.println("Send Second Data : " + String(Data_B));
+  }
+} // END OF Send_Data()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Receive_Data() {
+  CodeBlock = "Receive_Data()"; Check_Debug();
+  TempData = "BLANK";
+  Send_Ready_Signal();
+  Wait_For_Response();
+} // END OF Receive_Data()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Wait_For_Response() {
+  TempData = "BLANK";
+  while (TempData == "BLANK") { // Read serial comm port for instruction
+    while (Serial.available() > 0) {
+      TempData = Serial.readString();
+    }
+  }
+}
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Walkbox_Mode() {
+  CodeBlock = "Walkbox_Mode"; Check_Debug();
+  Set_Variables();
+  Read_Pins();
+  Process_Inputs();
+  Process_Paddles();
+  Select_Output_Key();
+  Send_Keys();
+  Delay_Time();
+} // END OF Combo_Mode()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Process_Paddles() {
+  switch (PaddleCombo) {
+    // Right Foot 1 Paddle
+    case 100000001: // OUT
+      SelectedUserOutput = 1;
+      break;
+    case 100000010: // DOWN
+      SelectedUserOutput = 2;
+      break;
+    case 100000100: // IN
+      SelectedUserOutput = 3;
+      break;
+    case 100001000: // UP
+      SelectedUserOutput = 4;
+      break;
+    //---------------------------------------
+    // Left Foot 1 Paddle
+    case 100010000: // IN
+      SelectedUserOutput = 5;
+      break;
+    case 100100000: // DOWN
+      SelectedUserOutput = 6;
+      break;
+    case 101000000: // OUT
+      SelectedUserOutput = 7;
+      break;
+    case 110000000: // UP
+      SelectedUserOutput = 8;
+      break;
+    //---------------------------------------
+    // Left IN + Right 1 Paddle
+    case 100010001: //
+      SelectedUserOutput = 9;
+      break;
+    case 100010010: //
+      SelectedUserOutput = 10;
+      break;
+    case 100010100: //
+      SelectedUserOutput = 11;
+      break;
+    case 100011000: //
+      SelectedUserOutput = 12;
+      break;
+    //---------------------------------------
+    // Left DOWN + Right 1 Paddle
+    case 100100001: //
+      SelectedUserOutput = 13;
+      break;
+    case 100100010: //
+      SelectedUserOutput = 14;
+      break;
+    case 100100100: //
+      SelectedUserOutput = 15;
+      break;
+    case 100101000: //
+      SelectedUserOutput = 16;
+      break;
+    //---------------------------------------
+    // Left OUT + Right 1 Paddle
+    case 101000001: //
+      SelectedUserOutput = 17;
+      break;
+    case 101000010: //
+      SelectedUserOutput = 18;
+      break;
+    case 101000100: //
+      SelectedUserOutput = 19;
+      break;
+    case 101001000: //
+      SelectedUserOutput = 20;
+      break;
+    //---------------------------------------
+    // Left UP + Right 1 Paddle
+    case 110000001: //
+      SelectedUserOutput = 21;
+      break;
+    case 110000010: //
+      SelectedUserOutput = 22;
+      break;
+    case 110000100: //
+      SelectedUserOutput = 23;
+      break;
+    case 110001000: //
+      SelectedUserOutput = 24;
+      break;
+    //---------------------------------------
+    // Right Only 2 Paddles
+    case 100000011: // OUT + DOWN
+      SelectedUserOutput = 25;
+      break;
+    case 100000110: // DOWN + IN
+      SelectedUserOutput = 26;
+      break;
+    case 100001100: // IN + UP
+      SelectedUserOutput = 27;
+      break;
+    case 100001001: // UP + OUT
+      SelectedUserOutput = 28;
+      break;
+    //---------------------------------------
+    // Left Only 2 Paddles
+    case 100110000: // IN + DOWN
+      SelectedUserOutput = 29;
+      break;
+    case 101100000: // DOWN + OUT
+      SelectedUserOutput = 30;
+      break;
+    case 111000000: // OUT + UP
+      SelectedUserOutput = 31;
+      break;
+    case 110010000: // UP + IN
+      SelectedUserOutput = 32;
+      break;
+    //---------------------------------------
+    // RIGHT OUT + DOWN / LEFT 1 PADDLE
+    case 100010011: // OUT + DOWN / IN
+      SelectedUserOutput = 33;
+      break;
+    case 100100011: // OUT + DOWN / DOWN
+      SelectedUserOutput = 34;
+      break;
+    case 101000011: // OUT + DOWN / OUT
+      SelectedUserOutput = 35;
+      break;
+    case 110000011: // OUT + DOWN / UP
+      SelectedUserOutput = 36;
+      break;
+    //---------------------------------------
+    // RIGHT DOWN + IN / LEFT 1 PADDLE
+    case 100010110: // DOWN + IN / IN
+      SelectedUserOutput = 37;
+      break;
+    case 100100110: // DOWN + IN / DOWN
+      SelectedUserOutput = 38;
+      break;
+    case 101000110: // DOWN + IN / OUT
+      SelectedUserOutput = 39;
+      break;
+    case 110000110: // DOWN + IN / UP
+      SelectedUserOutput = 40;
+      break;
+    //---------------------------------------
+    // RIGHT IN + UP / LEFT 1 PADDLE
+    case 100011100: // IN + UP / IN
+      SelectedUserOutput = 41;
+      break;
+    case 100101100: // IN + UP / DOWN
+      SelectedUserOutput = 42;
+      break;
+    case 101001100: // IN + UP / OUT
+      SelectedUserOutput = 43;
+      break;
+    case 110001100: // IN + UP / UP
+      SelectedUserOutput = 44;
+      break;
+    //---------------------------------------
+    // RIGHT UP + OUT / LEFT 1 PADDLE
+    case 100011001: // UP + OUT / IN
+      SelectedUserOutput = 45;
+      break;
+    case 100101001: // UP + OUT / DOWN
+      SelectedUserOutput = 46;
+      break;
+    case 101001001: // UP + OUT / OUT
+      SelectedUserOutput = 47;
+      break;
+    case 110001001: // UP + OUT / UP
+      SelectedUserOutput = 48;
+      break;
+    //---------------------------------------
+    // LEFT IN + DOWN / RIGHT 1 PADDLE
+    case 100110001: // IN + DOWN / OUT
+      SelectedUserOutput = 49;
+      break;
+    case 100110010: // IN + DOWN / DOWN
+      SelectedUserOutput = 50;
+      break;
+    case 100110100: // IN + DOWN / IN
+      SelectedUserOutput = 51;
+      break;
+    case 100111000: // IN + DOWN / UP
+      SelectedUserOutput = 52;
+      break;
+    //---------------------------------------
+    // LEFT DOWN + OUT / RIGHT 1 PADDLE
+    case 101100001: // DOWN + OUT / OUT
+      SelectedUserOutput = 53;
+      break;
+    case 101100010: // DOWN + OUT / DOWN
+      SelectedUserOutput = 54;
+      break;
+    case 101100100: // DOWN + OUT / IN
+      SelectedUserOutput = 55;
+      break;
+    case 101101000: // DOWN + OUT / UP
+      SelectedUserOutput = 56;
+      break;
+    //---------------------------------------
+    // LEFT OUT + UP / RIGHT 1 PADDLE
+    case 111000001: // OUT + UP / OUT
+      SelectedUserOutput = 57;
+      break;
+    case 111000010: // OUT + UP / DOWN
+      SelectedUserOutput = 58;
+      break;
+    case 111000100: // OUT + UP / IN
+      SelectedUserOutput = 59;
+      break;
+    case 111001000: // OUT + UP / UP
+      SelectedUserOutput = 60;
+      break;
+    //---------------------------------------
+    // LEFT UP + IN / RIGHT 1 PADDLE
+    case 110010001: // UP + IN / OUT
+      SelectedUserOutput = 61;
+      break;
+    case 110010010: // UP + IN / DOWN
+      SelectedUserOutput = 62;
+      break;
+    case 110010100: // UP + IN / IN
+      SelectedUserOutput = 63;
+      break;
+    case 110011000: // UP + IN / UP
+      SelectedUserOutput = 64;
+      break;
+    // ------------------------------------------
+    // BOTH FEET 2 PADDLES
+    // -------------------------------------------
+    // LEFT IN + DOWN / RIGHT 2 PADDLES
+    case 100110011: // IN + DOWN / OUT + DOWN
+      SelectedUserOutput = 65;
+      break;
+    case 100110110: // IN + DOWN / DOWN + IN
+      SelectedUserOutput = 66;
+      break;
+    case 100111100: // IN + DOWN / IN + UP
+      SelectedUserOutput = 67;
+      break;
+    case 100111001: // IN + DOWN / UP + OUT
+      SelectedUserOutput = 68;
+      break;
+    //---------------------------------------
+    // LEFT DOWN + OUT / RIGHT 2 PADDLES
+    case 101100011: // DOWN + OUT / OUT + DOWN
+      SelectedUserOutput = 69;
+      break;
+    case 101100110: // DOWN + OUT / DOWN + IN
+      SelectedUserOutput = 70;
+      break;
+    case 101101100: // DOWN + OUT / IN + UP
+      SelectedUserOutput = 71;
+      break;
+    case 101101001: // DOWN + OUT / UP + OUT
+      SelectedUserOutput = 72;
+      break;
+    //---------------------------------------
+    // LEFT OUT + UP / RIGHT 2 PADDLES
+    case 111000011: // OUT + UP / OUT + DOWN
+      SelectedUserOutput = 73;
+      break;
+    case 111000110: // OUT + UP / DOWN + IN
+      SelectedUserOutput = 74;
+      break;
+    case 111001100: // OUT + UP / IN + UP
+      SelectedUserOutput = 75;
+      break;
+    case 111001001: // OUT + UP / UP + OUT
+      SelectedUserOutput = 76;
+      break;
+    //---------------------------------------
+    // LEFT UP + IN / RIGHT 2 PADDLES
+    case 110010011: // UP + IN / OUT + DOWN
+      SelectedUserOutput = 77;
+      break;
+    case 110010110: // UP + IN / DOWN + IN
+      SelectedUserOutput = 78;
+      break;
+    case 110011100: // UP + IN / IN + UP
+      SelectedUserOutput = 79;
+      break;
+    case 110011001: // UP + IN / UP + OUT
+      SelectedUserOutput = 80;
+      break;
+      //---------------------------------------
+  }
+  // 100000000
+
+} // END OF TEST_Select_Output
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+void Read_Commands() {
+  CodeBlock = "Read_Commands()";  Check_Debug();
+  LastCommand = Command;
+  while (Serial.available() > 0) { // Read serial comm port for instruction
+    Command = Serial.readString();
+  }
+} // END OF Read_Commands()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Send_Ready_Signal() {
+  Serial.write("READY"); Serial.write("\n");
+}// END OF Send_Ready_Signal()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Clear_Keys() {
+  keyboard_keys[0] = 0; keyboard_keys[1] = 0; keyboard_keys[2] = 0;
+  keyboard_keys[3] = 0; keyboard_keys[4] = 0; keyboard_keys[5] = 0;
+  keyboard_modifier_keys = 0;
+} // END OF Clear_Keys()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Special_Char_Check() { // Check if selected output is a special character
+  Clear_Keys(); // set all keys to null
+  keyboard_modifier_keys = 5; // DEFAULT 5 = LEFT_ALT
+  /*
+    case : //
+    break;
+  */
+  switch (SelectedUserOutput) {
+    case 94: // EXCLAMATION SHIFT 1 !
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = ONE;
+      break;
+    case 95: // AMPERSAND SHIFT 2 @
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = TWO;
+      break;
+    case 96: // HASHTAG SHIFT 3 #
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = THREE;
+      break;
+    case 97: // DOLLARSIGN SHIFT 4 $
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = FOUR;
+      break;
+    case 98: // PERCENTSIGN SHIFT 5 %
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = FIVE;
+      break;
+    case 99: // CARETSIGN SHIFT 6 ^
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = SIX;
+      break;
+    case 100: // ANDSIGN SHIFT 7 &
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = SEVEN;
+      break;
+    case 101: // ASTERIX SHIFT 8 *
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = EIGHT;
+      break;
+    case 102: // PARENTH_LEFT SHIFT 9 (
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = NINE;
+      break;
+    case 103: // PARENTH_RIGHT SHIFT 0 )
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = ZERO;
+      break;
+    case 104: // UNDERSCORE SHIFT MINUS_SIGN _
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = MINUS;
+      break;
+    case 105: // CURLYBRACKET_LEFT SHIFT LEFT_BRACE {
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = LEFT_BRACE;
+      break;
+    case 106: // CURLYBRACKET_RIGHT SHIFT RIGHT_BRACE }
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = RIGHT_BRACE;
+      break;
+    case 107: // PLUSSIGN SHIFT EQUAL_SIGN +
+      keyboard_modifier_keys = Mod_Key_Name[1]; keyboard_keys[1] = EQUAL;
+      break;
+    // LEFT ALT + 4 DIGITS
+    case 108: // COPYRIGHT 0169 ©
+      keyboard_keys[1] = 1; keyboard_keys[2] = 6; keyboard_keys[3] = 9;
+      break;
+    case 109: // TRADEMARK 0153 ™
+      keyboard_keys[1] = 1; keyboard_keys[2] = 5; keyboard_keys[3] = 3;
+      break;
+    case 110: // REGISTERED 0174 ®
+      keyboard_keys[1] = 1; keyboard_keys[2] = 7; keyboard_keys[3] = 4;
+      break;
+    case 111: // LISTDOT 0149 •
+      keyboard_keys[1] = 1; keyboard_keys[2] = 4; keyboard_keys[3] = 9;
+      break;
+    case 112: // SECTIONSYMBOL 0167 §
+      keyboard_keys[1] = 1; keyboard_keys[2] = 6; keyboard_keys[3] = 7;
+      break;
+    case 113: // DAGGER 0134 †
+      keyboard_keys[1] = 1; keyboard_keys[2] = 3; keyboard_keys[3] = 4;
+      break;
+    case 114: // DOUBLEDAGGER 0135 ‡
+      keyboard_keys[1] = 1; keyboard_keys[2] = 3; keyboard_keys[3] = 5;
+      break;
+    case 115: // ENDASH 0150 –
+      keyboard_keys[1] = 1; keyboard_keys[2] = 5; keyboard_keys[3] = 0;
+      break;
+    case 116: //EMDASH 0151 —
+      keyboard_keys[1] = 1; keyboard_keys[2] = 5; keyboard_keys[3] = 1;
+      break;
+    case 117: // PARAGRAPH 0182 ¶
+      keyboard_keys[1] = 1; keyboard_keys[2] = 8; keyboard_keys[3] = 2;
+      break;
+    case 118: // 1/4 0188 ¼
+      keyboard_keys[1] = 1; keyboard_keys[2] = 8; keyboard_keys[3] = 8;
+      break;
+    case 119: // 1/2 0189 ½
+      keyboard_keys[1] = 1; keyboard_keys[2] = 8; keyboard_keys[3] = 9;
+      break;
+    case 120: // 3/4 0190 ¾
+      keyboard_keys[1] = 1; keyboard_keys[2] = 9; keyboard_keys[3] = 0;
+      break;
+    case 121: // DIVISION 0247 ÷
+      keyboard_keys[1] = 2; keyboard_keys[2] = 4; keyboard_keys[3] = 7;
+      break;
+    case 122: // DEGREE 0176 °
+      keyboard_keys[1] = 1; keyboard_keys[2] = 7; keyboard_keys[3] = 6;
+      break;
+    case 123: // NOTSYMBOL 0172 ¬
+      keyboard_keys[1] = 1; keyboard_keys[2] = 7; keyboard_keys[3] = 2;
+      break;
+    case 124: // PLUSMINUS 0177 ±
+      keyboard_keys[1] = 1; keyboard_keys[2] = 7; keyboard_keys[3] = 7;
+      break;
+    case 125: // MICRO 0181 µ
+      keyboard_keys[1] = 1; keyboard_keys[2] = 8; keyboard_keys[3] = 1;
+      break;
+    case 126: // PERMILLE (thousandths) 0137 ‰
+      keyboard_keys[1] = 1; keyboard_keys[2] = 3; keyboard_keys[3] = 7;
+      break;
+    case 127: // CENTSIGN 0162 ¢
+      keyboard_keys[1] = 1; keyboard_keys[2] = 6; keyboard_keys[3] = 2;
+      break;
+    case 128: // BRITISHPOUND 0163 £
+      keyboard_keys[1] = 1; keyboard_keys[2] = 6; keyboard_keys[3] = 3;
+      break;
+    case 129: // EURO 0128 €
+      keyboard_keys[1] = 1; keyboard_keys[2] = 2; keyboard_keys[3] = 8;
+      break;
+    case 130: // YEN 0165 ¥
+      keyboard_keys[1] = 1; keyboard_keys[2] = 6; keyboard_keys[3] = 5;
+      break;
+    case 131: // FLORIN 0131 ƒ
+      keyboard_keys[1] = 1; keyboard_keys[2] = 3; keyboard_keys[3] = 1;
+      break;
+    case 132: // GENERICCURRENCY 0164 ¤
+      keyboard_keys[1] = 1; keyboard_keys[2] = 6; keyboard_keys[3] = 4;
+      break;
+    case 133: // UPSIDEEXLAMATION 0161 ¡
+      keyboard_keys[1] = 1; keyboard_keys[2] = 6; keyboard_keys[3] = 1;
+      break;
+    case 134: // UPSIDEQUESTION 0191 ¿
+      keyboard_keys[1] = 1; keyboard_keys[2] = 9; keyboard_keys[3] = 1;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    // CHARACTERS WITH ACCENTS IN UPPER AND LOWER CASE
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<< Grave Capitol
+    case 135: // À 0192
+      keyboard_keys[1] = 1; keyboard_keys[2] = 9; keyboard_keys[3] = 2;
+      break;
+    case 136: // È 0200
+      keyboard_keys[1] = 2; keyboard_keys[2] = 0; keyboard_keys[3] = 0;
+      break;
+    case 137: // Ì 0204
+      keyboard_keys[1] = 2; keyboard_keys[2] = 0; keyboard_keys[3] = 4;
+      break;
+    case 138: // Ò 0210
+      keyboard_keys[1] = 2; keyboard_keys[2] = 1; keyboard_keys[3] = 0;
+      break;
+    case 139: // Ù 0217
+      keyboard_keys[1] = 2; keyboard_keys[2] = 1; keyboard_keys[3] = 7;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<< Grave Lower Case
+    case 140: // à 0224
+      keyboard_keys[1] = 2; keyboard_keys[2] = 2; keyboard_keys[3] = 4;
+      break;
+    case 141: // è 0232
+      keyboard_keys[1] = 2; keyboard_keys[2] = 3; keyboard_keys[3] = 2;
+      break;
+    case 142: // ì 0236
+      keyboard_keys[1] = 2; keyboard_keys[2] = 3; keyboard_keys[3] = 6;
+      break;
+    case 143: // ò 0242
+      keyboard_keys[1] = 2; keyboard_keys[2] = 4; keyboard_keys[3] = 2;
+      break;
+    case 144: // ù 0249
+      keyboard_keys[1] = 2; keyboard_keys[2] = 4; keyboard_keys[3] = 9;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<< Acute Capital
+    case 145: // Á 0193
+      keyboard_keys[1] = 1; keyboard_keys[2] = 9; keyboard_keys[3] = 3;
+      break;
+    case 146: // É 0201
+      keyboard_keys[1] = 2; keyboard_keys[2] = 0; keyboard_keys[3] = 1;
+      break;
+    case 147: // Í 0205
+      keyboard_keys[1] = 2; keyboard_keys[2] = 0; keyboard_keys[3] = 5;
+      break;
+    case 148: // Ó 0211
+      keyboard_keys[1] = 2; keyboard_keys[2] = 1; keyboard_keys[3] = 1;
+      break;
+    case 149: // Ú 0218
+      keyboard_keys[1] = 2; keyboard_keys[2] = 1; keyboard_keys[3] = 8;
+      break;
+    case 150: // Ý 0221
+      keyboard_keys[1] = 2; keyboard_keys[2] = 2; keyboard_keys[3] = 1;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<< Acute Lower Case
+    case 151: // á 0225
+      keyboard_keys[1] = 2; keyboard_keys[2] = 2; keyboard_keys[3] = 5;
+      break;
+    case 152: // é 0233
+      keyboard_keys[1] = 2; keyboard_keys[2] = 3; keyboard_keys[3] = 3;
+      break;
+    case 153: // í 0237
+      keyboard_keys[1] = 2; keyboard_keys[2] = 3; keyboard_keys[3] = 7;
+      break;
+    case 154: // ó 0243
+      keyboard_keys[1] = 2; keyboard_keys[2] = 4; keyboard_keys[3] = 3;
+      break;
+    case 155: // ú 0250
+      keyboard_keys[1] = 2; keyboard_keys[2] = 5; keyboard_keys[3] = 0;
+      break;
+    case 156: // ý 0253
+      keyboard_keys[1] = 2; keyboard_keys[2] = 5; keyboard_keys[3] = 3;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<< Circumflex Capital
+    case 157: // Â 0194
+      keyboard_keys[1] = 1; keyboard_keys[2] = 9; keyboard_keys[3] = 4;
+      break;
+    case 158: // Ê 0202
+      keyboard_keys[1] = 2; keyboard_keys[2] = 0; keyboard_keys[3] = 2;
+      break;
+    case 159: // Î 0206
+      keyboard_keys[1] = 2; keyboard_keys[2] = 0; keyboard_keys[3] = 6;
+      break;
+    case 160: // Ô 0212
+      keyboard_keys[1] = 2; keyboard_keys[2] = 1; keyboard_keys[3] = 2;
+      break;
+    case 161: // Û 0219
+      keyboard_keys[1] = 2; keyboard_keys[2] = 1; keyboard_keys[3] = 9;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<<< Circumflex Lower Case
+    case 162: // â 0226
+      keyboard_keys[1] = 2; keyboard_keys[2] = 2; keyboard_keys[3] = 6;
+      break;
+    case 163: // ê 0234
+      keyboard_keys[1] = 2; keyboard_keys[2] = 3; keyboard_keys[3] = 4;
+      break;
+    case 164: // î 0238
+      keyboard_keys[1] = 2; keyboard_keys[2] = 3; keyboard_keys[3] = 8;
+      break;
+    case 165: // ô 0244
+      keyboard_keys[1] = 2; keyboard_keys[2] = 4; keyboard_keys[3] = 4;
+      break;
+    case 166: // û 0251
+      keyboard_keys[1] = 2; keyboard_keys[2] = 5; keyboard_keys[3] = 1;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<<< Tilde Capital
+    case 167: // Ã 0195
+      keyboard_keys[1] = 1; keyboard_keys[2] = 9; keyboard_keys[3] = 5;
+      break;
+    case 168: // Ñ 0209
+      keyboard_keys[1] = 2; keyboard_keys[2] = 0; keyboard_keys[3] = 9;
+      break;
+    case 169: // Õ 0213
+      keyboard_keys[1] = 2; keyboard_keys[2] = 1; keyboard_keys[3] = 3;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<<< Tilde Lower Case
+    case 170: // ã 0227
+      keyboard_keys[1] = 2; keyboard_keys[2] = 2; keyboard_keys[3] = 7;
+      break;
+    case 171: // ñ 0241
+      keyboard_keys[1] = 2; keyboard_keys[2] = 4; keyboard_keys[3] = 1;
+      break;
+    case 172: // õ 0245
+      keyboard_keys[1] = 2; keyboard_keys[2] = 4; keyboard_keys[3] = 5;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<< Umlaut Capital
+    case 173: // Ä 0196
+      keyboard_keys[1] = 1; keyboard_keys[2] = 9; keyboard_keys[3] = 6;
+      break;
+    case 174: // Ë 0203
+      keyboard_keys[1] = 2; keyboard_keys[2] = 0; keyboard_keys[3] = 3;
+      break;
+    case 175: // Ï 0207
+      keyboard_keys[1] = 2; keyboard_keys[2] = 0; keyboard_keys[3] = 7;
+      break;
+    case 176: // Ö 0214
+      keyboard_keys[1] = 2; keyboard_keys[2] = 1; keyboard_keys[3] = 4;
+      break;
+    case 177: // Ü 0220
+      keyboard_keys[1] = 2; keyboard_keys[2] = 2; keyboard_keys[3] = 0;
+      break;
+    case 178: // Ÿ 0159
+      keyboard_keys[1] = 1; keyboard_keys[2] = 5; keyboard_keys[3] = 9;
+      break;
+    // <<<<<<<<<<<<<<<<<<<<<<<<<< Umlaut Lower Case
+    case 179: // ä 0228
+      keyboard_keys[1] = 2; keyboard_keys[2] = 2; keyboard_keys[3] = 8;
+      break;
+    case 180: //  ë 0235
+      keyboard_keys[1] = 2; keyboard_keys[2] = 3; keyboard_keys[3] = 5;
+      break;
+    case 181: // ï 0239
+      keyboard_keys[1] = 2; keyboard_keys[2] = 3; keyboard_keys[3] = 9;
+      break;
+    case 182: // ö 0246
+      keyboard_keys[1] = 2; keyboard_keys[2] = 4; keyboard_keys[3] = 6;
+      break;
+    case 183: // ü 0252
+      keyboard_keys[1] = 2; keyboard_keys[2] = 5; keyboard_keys[3] = 2;
+      break;
+    case 184: // ÿ 0255
+      keyboard_keys[1] = 2; keyboard_keys[2] = 5; keyboard_keys[3] = 5;
+      break;
+
+  } // END OF switch (SelectedUserOutput) <<<<<<<<<<<<<<<<<<<<<<<<<<<<
+  //-------------------------------------------------
+
+  if (DebugMode == true) {
+    for (LoopCount = 0; LoopCount <= 5; LoopCount++)
+    { // prints out values of all 6 key buffers
+      Serial.println("keyboard_keys = " + String(keyboard_keys[LoopCount]));
+    }
+  }
+} // END OF Special_Char_Check()
+
+
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Select_Output_Key() {
+
+  if (SelectedUserOutput >= 94) {
+    Special_Char_Check();
+  } else {
+    // output key selected from Output_Key_Name using SelectedUserOutput
+    keyboard_keys[0] = Output_Key_Name[SelectedUserOutput];
+    keyboard_keys[1] = 0; keyboard_keys[2] = 0; keyboard_keys[3] = 0;
+    keyboard_keys[4] = 0; keyboard_keys[5] = 0;
+    // modifier key selected from Mod_Key_Name using Output_Key_Name using SelectedUserOutput + 1
+    keyboard_modifier_keys = Mod_Key_Name[Output_Key_Name[SelectedUserOutput + 1]];
+  }
+} // END OF Select_Output_Key()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Send_Keys() {
+  usb_keyboard_send();
+}// END OF Send_Keys()
+
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+
+void Set_Variables() {
+  // Set output keys to un-pressed
+  keyboard_modifier_keys = 0; // ALT, SHIFT, CTRL, GUI
+  keyboard_keys[0] = 0; keyboard_keys[1] = 0;
+  keyboard_keys[2] = 0; keyboard_keys[3] = 0;
+  keyboard_keys[4] = 0; keyboard_keys[5] = 0;
+  //
+  PaddleCombo = 100000000;
+} // END OF Set_Variables()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Read_Pins() {
+  // The first Pin is Ground, Pins 0 and 1 are TX and RX, Pin 2 is first digital input.
+  // The Walkbox inputs are read clockwise from the 3 o'clock position, starting with the right foot, then the left foot.
+  // Read digital pins 0 - 12 in a loop and store values in array
+  for (int i = 0; i < TotalPins; i++) {
+    if (digitalRead(i)) {
+      InputPins[i] = 0; // pin reads high, the paddle IS NOT pressed
+    } else {
+      InputPins[i] = 1; // pin reads low, the paddle IS pressed
+    }
+  }
+} // END OF Read_Pins()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Process_Inputs() {
+  // RIGHT FOOT INPUTS
+  // RIGHT OUT // Pin 2
+  if (InputPins[2] == 1) {
+    PaddleCombo = PaddleCombo + 1;
+  }
+  // RIGHT DOWN // Pin 3
+  if (InputPins[3] == 1) {
+    PaddleCombo = PaddleCombo + 10;
+  }
+  // RIGHT IN // Pin 4
+  if (InputPins[4] == 1) {
+    PaddleCombo = PaddleCombo + 100;
+  }
+  // RIGHT UP // Pin 5
+  if (InputPins[5] == 1) {
+    PaddleCombo = PaddleCombo + 1000;
+  }
+  // LEFT FOOT INPUTS
+  // LEFT IN // Pin 6
+  if (InputPins[6] == 1) {
+    PaddleCombo = PaddleCombo + 10000;
+  }
+  // LEFT DOWN // Pin 7
+  if (InputPins[7] == 1) {
+    PaddleCombo = PaddleCombo + 100000;
+  }
+  // LEFT OUT // Pin 8
+  if (InputPins[8] == 1) {
+    PaddleCombo = PaddleCombo + 1000000;
+  }
+  // LEFT UP // Pin 9
+  if (InputPins[9] == 1) {
+    PaddleCombo = PaddleCombo + 10000000;
+  }
+}// END OF Process_Inputs()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Debug_Delay() {
+  delay(DebugDelay);
+} // END OF Debug_Delay()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Debug_On() {
+  DebugMode = true; TempInputDelay = InputDelay; InputDelay = MaxInputDelay;
+} // END OF Debug_On()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Debug_Off() {
+  DebugMode = false; InputDelay = TempInputDelay;
+} // END OF Debug_Off()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+void Check_Debug() {
+  if (DebugMode == true) {
+    Serial.println(
+      "\n     Code Block is : " + CodeBlock + "\n      Play Mode is : " + WhichMode + "\n   Last Command is : " + LastCommand +
+      "\nCurrent Command is : " + Command + "\n   Edit Command is : " + EditCommand + "\n Config Command is : " + ConfigCommand + "\n");
+  }
+} // END OF Check_Debug()
+// <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<   <<<>>>
+// --- E O F ---
